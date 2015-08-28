@@ -15,6 +15,7 @@ module OFX
       attr_reader :headers
       attr_reader :body
       attr_reader :html
+      attr_accessor :tes
 
       def initialize(options = {})
         @headers = options[:headers]
@@ -96,8 +97,28 @@ module OFX
         TRANSACTION_TYPES[element.search("trntype").inner_text.to_s.upcase]
       end
 
+
       def build_amount(element)
-        BigDecimal.new(element.search("trnamt").inner_text)
+       
+        aux = element.search("trnamt").inner_text.reverse
+        aux2 = aux.split('')
+
+        aux2.each_index do |a|
+          
+          if aux2[a] == "," 
+            if a == 2
+              aux2[a] = "."
+            else
+              aux2.delete_at(a)
+            end
+          elsif aux2[a] == "." && a != 2
+            aux2.delete_at(a)
+          end
+
+        end
+        aux = aux2.join('').reverse    
+        BigDecimal.new(aux)
+
       end
 
       def build_date(date)
